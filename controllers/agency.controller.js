@@ -9,7 +9,6 @@ import crypto from "crypto";
 import { generateAgencyCode } from "../utils/generateAgencyCode.js";
 import AgencyDocument from "../models/AgencyDocument.js";
 
-/* ================= REGISTER AGENCY ================= */
 export const registerAgency = async (req, res) => {
   try {
     const { mobile, name, address, location } = req.body;
@@ -53,30 +52,6 @@ export const registerAgency = async (req, res) => {
   }
 };
 
-/* ================= UPDATE PROFILE ================= */
-export const updateAgencyProfile = async (req, res) => {
-  try {
-    const { name, address, city } = req.body;
-
-    const agency = await Agency.findByIdAndUpdate(
-      req.user.id,
-      {
-        name,
-        address,
-        city,
-      },
-      { new: true },
-    );
-
-    res.json(agency);
-  } catch (err) {
-    res.status(500).json({
-      message: "Profile update failed",
-    });
-  }
-};
-
-/* ================= ADD DRIVER ================= */
 export const addDriver = async (req, res) => {
   try {
     const { name, mobile, experience } = req.body;
@@ -132,7 +107,6 @@ export const addDriver = async (req, res) => {
   }
 };
 
-/* ================= GET DRIVERS ================= */
 export const getDrivers = async (req, res) => {
   try {
     const drivers = await Driver.find({
@@ -147,7 +121,6 @@ export const getDrivers = async (req, res) => {
   }
 };
 
-/* ================= ASSIGN DRIVER ================= */
 export const assignDriver = async (req, res) => {
   try {
     const { bookingId, driverId } = req.body;
@@ -195,7 +168,6 @@ export const assignDriver = async (req, res) => {
   }
 };
 
-/* ================= DRIVER STATS ================= */
 export const getAgencyDriverStats = async (req, res) => {
   try {
     const { driverId } = req.params;
@@ -452,5 +424,66 @@ export const checkDriver = async (req, res) => {
   } catch (err) {
     console.error("CHECK DRIVER ERROR", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getAgencyVehicles = async (req, res) => {
+  try {
+    const agencyId = req.user.id;
+
+    const vehicles = await Vehicle.find({ agencyId }).sort({
+      createdAt: -1,
+    });
+
+    res.json({ vehicles });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateAvailabilityStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { availabilityStatus } = req.body;
+
+    const vehicle = await Vehicle.findByIdAndUpdate(
+      id,
+      { availabilityStatus },
+      { new: true },
+    );
+
+    res.json(vehicle);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateVehiclePricing = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      minimumKm,
+      baseFare,
+      perKmRate,
+      driverAllowancePerDay,
+      nightCharge,
+    } = req.body;
+
+    const vehicle = await Vehicle.findByIdAndUpdate(
+      id,
+      {
+        minimumKm,
+        "pricing.baseFare": baseFare,
+        "pricing.perKmRate": perKmRate,
+        "pricing.driverAllowancePerDay": driverAllowancePerDay,
+        "pricing.nightCharge": nightCharge,
+      },
+      { new: true },
+    );
+
+    res.json(vehicle);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

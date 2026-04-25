@@ -1,7 +1,6 @@
 import express from "express";
 import {
   checkDriver,
-  checkVehicle,
   dashboard,
   getDriverStats,
   registerIndividualDriver,
@@ -54,5 +53,5 @@ router.post(
 );
 
 router.get("dashboard", protect, driverOnly, dashboard);
-router.post("/vehicle/check", protect, driverOnly, checkVehicle);
+// router.post("/vehicle/check", protect, driverOnly, checkVehicle);
 export default router;
